@@ -2,19 +2,39 @@ from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
 from typing import List
 from news.scrape import SearchResult
+import warnings
+import os
+import sys
+
+# TODO: Add stopword removal, and stemming to improve the sentiment analysis.
+# TODO: Add Loughran-McDonald dictionary to improve the sentiment analysis.
+
+
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, "w")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
 
 
 class SentimentAnalysis:
     def __init__(self):
         self.tokenizer = BertTokenizerFast.from_pretrained("ProsusAI/finbert")
         self.model = BertForSequenceClassification.from_pretrained("ProsusAI/finbert")
+        self.tokenizer.model_max_length = sys.maxsize
 
     def __chunk_and_tokenize(self, text: str) -> List[str]:
-        tokens = self.tokenizer.encode_plus(
-            text,
-            add_special_tokens=False,
-            return_tensors="pt",
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with HiddenPrints():
+                tokens = self.tokenizer.encode_plus(
+                    text,
+                    add_special_tokens=False,
+                    return_tensors="pt",
+                )
         chunksize = 512
         input_id_chunks = list(tokens["input_ids"][0].split(chunksize - 2))
         attention_mask_chunks = list(tokens["attention_mask"][0].split(chunksize - 2))
@@ -49,16 +69,14 @@ class SentimentAnalysis:
         tokens = self.__chunk_and_tokenize(text)
         with torch.no_grad():
             outputs = self.model(**tokens)
-            probabilties = torch.nn.functional.softmax(outputs.logits, dim=-1)
+            probabilties = torch.nn.functional.softmax(outputs[0], dim=-1)
             mean_prob = probabilties.mean(dim=0)
             sentiment = mean_prob.tolist()
-            pred_sentiment = sentiment[0] - sentiment[2]
-        return sentiment, pred_sentiment
+        return sentiment
 
     def process_search_result(self, sr: SearchResult):
-        sentiment, pred_sentiment = self.__get_sentiment(sr.text)
+        sentiment = self.__get_sentiment(sr.text)
         sr.sentiment = sentiment
-        sr.predicted_sentiment = pred_sentiment
         return sr
 
     def process_list(self, results: List[SearchResult]) -> List[SearchResult]:
@@ -89,8 +107,8 @@ def compute_daily_averages(results: List[SearchResult]) -> List:
     total_neu = 0
     for r in results:
         total_pos += r.sentiment[0]
-        total_neg += r.sentiment[2]
-        total_neu += r.sentiment[1]
+        total_neg += r.sentiment[1]
+        total_neu += r.sentiment[2]
 
     avg_total = (total_pos - total_neg) / len(results)
     avg_pos = total_pos / len(results)
