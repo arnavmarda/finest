@@ -6,6 +6,9 @@ from halo import Halo
 from rich import print as rprint
 from datetime import date
 import pandas as pd
+from rich.progress import Progress, TaskID
+from interruptingcow import timeout
+import warnings
 
 
 class SearchResult(BaseModel):
@@ -78,7 +81,12 @@ def get_params(
 
 
 def parse_and_populate(
-    response: Response, results: List[SearchResult], count: int, end: int
+    response: Response,
+    results: List[SearchResult],
+    count: int,
+    end: int,
+    progress: Progress,
+    task_id: TaskID,
 ) -> None:
     """
     Function to parse and populate the list with results from the particular google search page.
@@ -101,23 +109,28 @@ def parse_and_populate(
     soup = BeautifulSoup(response.text, "html.parser")
     blocks = soup.find_all("div", attrs={"class": "SoaBEf"})
     for b in blocks:
-        if count == end:
+        if count >= end:
             break
-        spinner = Halo(text=f"Scraping news article {count+1}", spinner="dots")
-        spinner.start()
         title = b.find("div", attrs={"aria-level": "3", "role": "heading"}).text
         link = b.find("a", href=True).get("href")
         provider = b.find("div", attrs={"class": "MgUUmf NUnG9d"}).text
         try:
-            resp = get(link)
-            text = clean_webpage(resp)
+            with warnings.catch_warnings(action="ignore"):
+                with timeout(5, exception=RuntimeError):
+                    resp = get(link)
+                    text = clean_webpage(resp)
             results.append(
                 SearchResult(title=title, url=link, provider=provider, text=text)
             )
             count += 1
-            spinner.stop()
+            if progress:
+                progress.update(task_id, advance=1)
+        except RuntimeError:
+            count += 1
+            if progress:
+                progress.update(task_id, advance=1)
+            continue
         except Exception as e:
-            spinner.fail()
             print(e)
             break
     return count
@@ -167,7 +180,11 @@ def get_daterange(
     start = date(start_date[2], start_date[0], start_date[1])
     end = date(end_date[2], end_date[0], end_date[1])
     dr = pd.date_range(start, end)
-    return [(d.month, d.day, d.year) for d in dr]
+    return [
+        (d.month, d.day, d.year)
+        for d in dr
+        if d.day_name() not in ["Saturday", "Sunday"]
+    ]
 
 
 def pprint_search_results(results: List[SearchResult]) -> None:
