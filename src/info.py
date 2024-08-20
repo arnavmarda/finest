@@ -89,6 +89,7 @@ class NewsSentiment:
             end=f"{end_date[2]}-{end_date[0]}-{end_date[1]}",
         )
         hist.reset_index(inplace=True)
+        hist["Date"] = hist["Date"].dt.date
         return hist[["Date", "Open", "Close", "High", "Low"]]
 
     def __plot_stock_sentiment_data(
@@ -302,7 +303,7 @@ class NewsSentiment:
 
         if df is None:
             stock_data = self.__get_ticker_data(ticker, start_date, end_date)
-            dates = stock_data["Date"].dt.date
+            dates = stock_data["Date"]
             date_range = [(d.month, d.day, d.year) for d in dates]
             sentiment_score, cum_sent_score = self.get_sentiment_score(
                 ticker, date_range, count
