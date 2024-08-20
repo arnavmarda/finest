@@ -186,36 +186,3 @@ def __merge_into_data_df(df: pd.DataFrame, insider_df: pd.DataFrame) -> pd.DataF
     df.fillna(0, inplace=True)
 
     return df
-
-
-def add_insider_index(
-    ticker: str, start_date: str, end_date: str, data: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Function to calculate and add the insider index to the existing stock data.
-
-    Parameters
-    ----------
-    ticker : str
-        The ticker for the stock to calculate the insider index for.
-    start_date : str
-        The start date to calculate the insider index for. Format: "YYYY-MM-DD"
-    end_date : str
-        The end date to calculate the insider index for. Format: "YYYY-MM-DD"
-    data : pd.DataFrame
-        The stock data to add the insider index to.
-
-    Returns
-    -------
-    pd.DataFrame
-        The stock data with the insider index added.
-    """
-    insider_df = __get_data(ticker, start_date, end_date)
-
-    if insider_df is None:
-        return data
-
-    data = __merge_into_data_df(data, insider_df)
-    data.rename(columns={"Amount": "InsiderIndex"}, inplace=True)
-
-    return data

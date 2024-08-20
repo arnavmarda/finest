@@ -308,37 +308,3 @@ def __merge_data_into_df(
     data["NewsSentiment"] = news_data
     data["CumulativeNewsSentiment"] = data["NewsSentiment"].cumsum()
     return data
-
-
-def add_news_index(
-    ticker: str,
-    data: pd.DataFrame,
-    sa: SentimentAnalysis,
-    count: int = 10,
-) -> pd.DataFrame:
-    """
-    Function to calculate and add the news sentiment to the existing stock data.
-
-    Parameters
-    ----------
-    ticker : str
-        The ticker for the stock to calculate the news sentiment for.
-    start_date : str
-        The start date to calculate the news sentiment for. Format: "YYYY-MM-DD"
-    end_date : str
-        The end date to calculate the news sentiment for. Format: "YYYY-MM-DD"
-    data : pd.DataFrame
-        The stock data to add the news sentiment to.
-    count : int
-        The number of articles to consider for each day. Default is 10.
-
-    Returns
-    -------
-    pd.DataFrame
-        The stock data with the news sentiment added.
-    """
-    dates = data["Date"]
-    dates = [(d.month, d.day, d.year) for d in dates]
-    news_data = __get_sentiment_score(ticker, dates, sa, count)
-    data = __merge_data_into_df(data, news_data)
-    return data

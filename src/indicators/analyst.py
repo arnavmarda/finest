@@ -117,38 +117,3 @@ def __merge_into_data_df(df: pd.DataFrame, ud_df: pd.DataFrame) -> pd.DataFrame:
     df.drop(columns=["Change"], inplace=True)
 
     return df
-
-
-def add_analyst_index(
-    ticker: str, start_date: str, end_date: str, data: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Function to calculate and add the analyst index to the existing stock data.
-
-    Parameters
-    ----------
-    ticker : str
-        The ticker for the stock to calculate the analyst index for.
-    start_date : str
-        The start date to calculate the analyst index for. Format: "YYYY-MM-DD"
-    end_date : str
-        The end date to calculate the analyst index for. Format: "YYYY-MM-DD"
-    data : pd.DataFrame
-        The stock data to add the analyst index to.
-
-    Returns
-    -------
-    pd.DataFrame
-        The stock data with the analyst index added.
-    """
-
-    # Download the upgrades and downgrades data
-    ud_data = __download_up_down_data(ticker)
-
-    # Clean the upgrades and downgrades data
-    ud_data = __clean_data(ud_data, start_date, end_date)
-
-    # Merge the upgrades and downgrades data into the main DataFrame
-    data = __merge_into_data_df(data, ud_data)
-
-    return data
