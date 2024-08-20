@@ -2,6 +2,9 @@ import pygwalker as pyg
 from dash import Dash, html
 import dash_dangerously_set_inner_html
 import pandas as pd
+from rich import print as rprint
+from typing import List
+from src.indicators.news import SearchResult
 
 
 def render_df(df: pd.DataFrame) -> Dash:
@@ -29,3 +32,27 @@ def render_df(df: pd.DataFrame) -> Dash:
     )
 
     return app
+
+
+def pprint_search_results(results: List[SearchResult]) -> None:
+    """
+    Function to pretty print the search results.
+
+    Parameters
+    ----------
+    results : List[SearchResult]
+        List of search results to pretty print.
+
+    Returns
+    -------
+    None
+    """
+    for i, r in enumerate(results):
+        rprint(f"[bold]Result {i+1}[/bold]")
+        rprint("-" * 50)
+        rprint(f"[red]Provider: {r.provider}[/red]")
+        rprint(f"[blue]Title: {r.title}[/blue]")
+        rprint(f"[green]URL: {r.url}[/green]")
+        rprint(f"[yellow]Text: {r.text}[/yellow]")
+        rprint("\n")
+        rprint("\n")
