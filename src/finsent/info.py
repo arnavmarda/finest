@@ -1,6 +1,6 @@
-from news.scrape import get_news_for_date
-from news.utils import get_daterange
-from sentiment.analysis import SentimentAnalysis
+from src.indicators.news import get_news_for_date
+from src.indicators.utils import get_daterange
+from src.sentiment.finbert import SentimentAnalysis
 from typing import Tuple, List
 from datetime import date
 import yfinance as yf
@@ -15,51 +15,6 @@ import os
 class NewsSentiment:
     def __init__(self):
         self.sa = SentimentAnalysis()
-
-    def get_sentiment_score(
-        self,
-        ticker: str,
-        date_range: List[Tuple],
-        count: int = 10,
-    ) -> Tuple[List, List]:
-        """
-        Function to get the sentiment score per day for a given ticker and date range.
-
-        Parameters
-        ----------
-        ticker : str
-            The ticker symbol of the company.
-        date_range : List[Tuple]
-            The date range in the format [(Month, Day, Year), ...].
-        count : int
-            The number of articles to consider for each day. Default is 10.
-
-        Returns
-        -------
-        Tuple[List, List]
-            The sentiment scores for each day in the date range. Cumulative sentiment score per day is also returned.
-        """
-        sentiment_score = []
-        cum_sent_score = []
-        curr_sent_score = 0
-        with Progress() as progress:
-            main_task = progress.add_task(
-                "[cyan]Processing Sentiment Scores...", total=len(date_range)
-            )
-            for d in date_range:
-                news = get_news_for_date(ticker, d, count, progress)
-                if not news:
-                    sentiment = [0]
-                else:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        sentiment = self.sa.process_list_for_sentiment(news)
-
-                curr_sent_score += sentiment[1]
-                sentiment_score.append(sentiment[1])
-                cum_sent_score.append(curr_sent_score)
-                progress.update(main_task, advance=1)
-            return sentiment_score, cum_sent_score
 
     def __get_ticker_data(
         self,
@@ -160,36 +115,6 @@ class NewsSentiment:
             yaxis2={"title": "Sentiment Score", "overlaying": "y", "side": "right"},
         )
         fig.show()
-
-    def __consolidate(
-        self,
-        sentiment_score: List,
-        cum_sent_score: List,
-        stock_data: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """
-        Function to consolidate the stock data and sentiment score data into a single DataFrame.
-
-        Parameters
-        ----------
-        sentiment_score : List
-            The sentiment scores for each day in the date range.
-        cum_sent_score : List
-            The cumulative sentiment scores for each day in the date range.
-        stock_data : Pandas DataFrame
-            The stock data for the given ticker and date range.
-
-        Returns
-        -------
-        Pandas DataFrame
-            The consolidated DataFrame containing the stock data and sentiment score data.
-        """
-        stock_data["Sentiment Score"] = sentiment_score
-        stock_data["5 Day Rolling Avg Sentiment Score"] = (
-            stock_data["Sentiment Score"].rolling(5, min_periods=1).mean()
-        )
-        stock_data["Cumulative Sentiment Score"] = cum_sent_score
-        return stock_data
 
     def __load_from_cache(self, ticker: str) -> pd.DataFrame | None:
         """
