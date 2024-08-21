@@ -305,6 +305,6 @@ def __merge_data_into_df(
         The main DataFrame with the news data merged.
     """
 
-    data["NewsSentiment"] = news_data
-    data["CumulativeNewsSentiment"] = data["NewsSentiment"].cumsum()
+    data["news"] = news_data
+    data["cumulative_news"] = data["NewsSentiment"].cumsum()
     return data

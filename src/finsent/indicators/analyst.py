@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+from finsent.indicators.utils import normalize
 
 
 def __download_up_down_data(ticker: str) -> pd.DataFrame:
@@ -76,7 +77,7 @@ def __clean_data(data: pd.DataFrame, start_date: str, end_date: str) -> pd.DataF
     # Compute the difference between the ToGrade and FromGrade
     data["Change"] = data["ToGrade"] - data["FromGrade"]
 
-    # Calculating the Runnign Total of the Change
+    # Calculating the Running Total of the Change
     data = data.groupby("GradeDate").sum().reset_index()
 
     # Drop the columns that are not needed
@@ -84,7 +85,8 @@ def __clean_data(data: pd.DataFrame, start_date: str, end_date: str) -> pd.DataF
 
     # Sort by the GradeDate
     data.sort_values(by="GradeDate", inplace=True)
-
+    data.rename(columns={"GradeDate": "Date", "Change": "analyst"}, inplace=True)
+    data["analyst"] = normalize(data["analyst"])
     return data
 
 

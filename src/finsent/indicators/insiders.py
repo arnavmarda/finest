@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 import glob
 import html_to_json
 import pandas as pd
+from finsent.indicators.utils import normalize
 
 
 def __get_all_files(
@@ -158,7 +159,8 @@ def __get_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
 
     df = df.groupby("Date").sum().reset_index()
     df.sort_values(by="Date", inplace=True)
-
+    df.rename(columns={"Date": "Date", "Amount": "insider"}, inplace=True)
+    df["insider"] = normalize(df["insider"])
     return df
 
 

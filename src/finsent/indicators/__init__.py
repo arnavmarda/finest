@@ -87,12 +87,10 @@ def add_news_index(
     ----------
     ticker : str
         The ticker for the stock to calculate the news sentiment for.
-    start_date : str
-        The start date to calculate the news sentiment for. Format: "YYYY-MM-DD"
-    end_date : str
-        The end date to calculate the news sentiment for. Format: "YYYY-MM-DD"
     data : pd.DataFrame
         The stock data to add the news sentiment to.
+    sa : SentimentAnalyzer
+        The sentiment analyzer to use for processing the news.
     count : int
         The number of articles to consider for each day. Default is 10.
 
