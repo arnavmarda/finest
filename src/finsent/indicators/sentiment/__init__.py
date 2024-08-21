@@ -1,3 +1,3 @@
-from src.indicators.sentiment.analyzer import SentimentAnalyzer
+from finsent.indicators.sentiment.analyzer import SentimentAnalyzer
 
 __all__ = ["SentimentAnalyzer"]

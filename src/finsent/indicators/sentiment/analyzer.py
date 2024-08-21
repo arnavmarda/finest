@@ -1,7 +1,7 @@
-from src.indicators.sentiment.finbert import FinBert
-from src.indicators.sentiment.vader import Vader
+from finsent.indicators.sentiment.finbert import FinBert
+from finsent.indicators.sentiment.vader import Vader
 from typing import Literal, List
-from src.indicators.news import SearchResult
+from finsent.indicators.news import SearchResult
 
 import re
 import nltk

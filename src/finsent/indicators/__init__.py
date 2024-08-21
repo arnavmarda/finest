@@ -1,5 +1,5 @@
 import pandas as pd
-from src.indicators.sentiment import SentimentAnalyzer
+from finsent.indicators.sentiment import SentimentAnalyzer
 
 import analyst
 import insiders

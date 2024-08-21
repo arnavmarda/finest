@@ -7,7 +7,7 @@ from datetime import date
 import pandas as pd
 from rich.progress import Progress, TaskID
 from interruptingcow import timeout
-from src.indicators.sentiment import SentimentAnalyzer
+from finsent.indicators.sentiment import SentimentAnalyzer
 import warnings
 
 

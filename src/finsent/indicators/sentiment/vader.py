@@ -1,5 +1,5 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from src.indicators.news import SearchResult
+from finsent.indicators.news import SearchResult
 from typing import List
 
 

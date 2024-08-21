@@ -1,13 +1,10 @@
 from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
 from typing import List
-from src.indicators.news import SearchResult
+from finsent.indicators.news import SearchResult
 import warnings
 import os
 import sys
-
-# TODO: Add stopword removal, and stemming to improve the sentiment analysis.
-# TODO: Add Loughran-McDonald dictionary to improve the sentiment analysis.
 
 
 class HiddenPrints:

@@ -4,7 +4,7 @@ import dash_dangerously_set_inner_html
 import pandas as pd
 from rich import print as rprint
 from typing import List
-from src.indicators.news import SearchResult
+from finsent.indicators.news import SearchResult
 
 
 def render_df(df: pd.DataFrame) -> Dash:
