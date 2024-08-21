@@ -1,5 +1,5 @@
 import pandas as pd
-from src.sentiment.analysis import SentimentAnalysis
+from src.indicators.sentiment import SentimentAnalyzer
 
 import analyst
 import insiders
@@ -77,7 +77,7 @@ def add_insider_index(
 def add_news_index(
     ticker: str,
     data: pd.DataFrame,
-    sa: SentimentAnalysis,
+    sa: SentimentAnalyzer,
     count: int = 10,
 ) -> pd.DataFrame:
     """

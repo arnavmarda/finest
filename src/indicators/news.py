@@ -7,7 +7,7 @@ from datetime import date
 import pandas as pd
 from rich.progress import Progress, TaskID
 from interruptingcow import timeout
-from src.sentiment.analysis import SentimentAnalysis
+from src.indicators.sentiment import SentimentAnalyzer
 import warnings
 
 
@@ -245,7 +245,7 @@ def __get_sentiment_score(
     self,
     ticker: str,
     date_range: List[Tuple],
-    sa: SentimentAnalysis,
+    sa: SentimentAnalyzer,
     count: int = 10,
 ) -> List[float]:
     """
@@ -280,7 +280,7 @@ def __get_sentiment_score(
                     warnings.simplefilter("ignore")
                     sentiment = sa.process_list_for_sentiment(news)
 
-            sentiment_score.append(sentiment[1])
+            sentiment_score.append(sentiment)
             progress.update(main_task, advance=1)
         return sentiment_score
 

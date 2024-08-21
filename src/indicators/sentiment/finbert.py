@@ -1,7 +1,7 @@
 from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
 from typing import List
-from news.scrape import SearchResult
+from src.indicators.news import SearchResult
 import warnings
 import os
 import sys
@@ -20,13 +20,27 @@ class HiddenPrints:
         sys.stdout = self._original_stdout
 
 
-class SentimentAnalysis:
+class FinBert:
     def __init__(self):
         self.tokenizer = BertTokenizerFast.from_pretrained("ProsusAI/finbert")
         self.model = BertForSequenceClassification.from_pretrained("ProsusAI/finbert")
+        # Mute the warnings from the tokenizer.
         self.tokenizer.model_max_length = sys.maxsize
 
     def __chunk_and_tokenize(self, text: str) -> List[str]:
+        """
+        Function to chunk and tokenize the text to fit the 512 token limit.
+
+        Parameters
+        ----------
+        text : str
+            The text to chunk and tokenize.
+
+        Returns
+        -------
+        List[str]
+            A list of tokenized text chunks
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with HiddenPrints():
@@ -66,6 +80,19 @@ class SentimentAnalysis:
         }
 
     def __get_sentiment(self, text: str) -> int:
+        """
+        Function to process the text and get the sentiment using FinBert.
+
+        Parameters
+        ----------
+        text : str
+            The text to process.
+
+        Returns
+        -------
+        int
+            The sentiment score.
+        """
         tokens = self.__chunk_and_tokenize(text)
         with torch.no_grad():
             outputs = self.model(**tokens)
@@ -75,43 +102,76 @@ class SentimentAnalysis:
         return sentiment
 
     def process_search_result(self, sr: SearchResult):
+        """
+        Function to process a single search result and add the sentiment to it.
+
+        Parameters
+        ----------
+        sr : SearchResult
+            The search result to process.
+
+        Returns
+        -------
+        SearchResult
+            The search result with the sentiment added.
+        """
         sentiment = self.__get_sentiment(sr.text)
         sr.sentiment = sentiment
         return sr
 
     def process_list(self, results: List[SearchResult]) -> List[SearchResult]:
+        """
+        Function to process a list of search results and add the sentiment to them.
+
+        Parameters
+        ----------
+        results : List[SearchResult]
+            The list of search results to process.
+
+        Returns
+        -------
+        List[SearchResult]
+            The list of search results with the sentiment added.
+        """
         for r in results:
             self.process_search_result(r)
         return results
 
-    def process_list_for_sentiment(self, results: List[SearchResult]) -> List:
-        return compute_daily_averages(self.process_list(results))
+    def process_list_for_sentiment(self, results: List[SearchResult]) -> float:
+        """
+        Function to process a list of search results and compute the daily average sentiment.
 
+        Parameters
+        ----------
+        results : List[SearchResult]
+            The list of search results to process.
 
-def compute_daily_averages(results: List[SearchResult]) -> List:
-    """
-    Utility function to compute the daily average sentiment for a list of search results.
+        Returns
+        -------
+        float
+            The daily average sentiment
+        """
+        return self.__compute_daily_averages(self.process_list(results))
 
-    Parameters
-    ----------
-    results : List[SearchResult]
-        List of search results to compute the daily average sentiment for.
+    def __compute_daily_averages(results: List[SearchResult]) -> float:
+        """
+        Utility function to compute the daily average sentiment for a list of search results.
 
-    Returns
-    -------
-    List
-        List containing the sentiment scores and the total average sentiment.
-    """
-    total_neg = 0
-    total_pos = 0
-    total_neu = 0
-    for r in results:
-        total_pos += r.sentiment[0]
-        total_neg += r.sentiment[1]
-        total_neu += r.sentiment[2]
+        Parameters
+        ----------
+        results : List[SearchResult]
+            List of search results to compute the daily average sentiment for.
 
-    avg_total = (total_pos - total_neg) / len(results)
-    avg_pos = total_pos / len(results)
-    avg_neg = total_neg / len(results)
-    avg_neu = total_neu / len(results)
-    return [(avg_pos, avg_neu, avg_neg), avg_total]
+        Returns
+        -------
+        float
+            The daily average sentiment.
+        """
+        total_neg = 0
+        total_pos = 0
+        for r in results:
+            total_pos += r.sentiment[0]
+            total_neg += r.sentiment[1]
+
+        avg_total = (total_pos - total_neg) / len(results)
+        return avg_total
