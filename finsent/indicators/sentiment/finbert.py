@@ -1,10 +1,10 @@
 from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
 from typing import List
-from finsent.indicators.news import SearchResult
 import warnings
 import os
 import sys
+from finsent.indicators.sentiment.models import SearchResult
 
 
 class HiddenPrints:

@@ -34,14 +34,13 @@ class DataComposer:
             Whether or not to preprocess the string before passing it to the sentiment analyzer. Default is True.
         """
         self.ticker = ticker
+        self.data: pd.DataFrame = None
+        self.start_date = None
+        self.end_date = None
         if load:
             self.data: pd.DataFrame = pd.read_pickle(load)
             self.start_date = self.data["Date"].min().isoformat()
             self.end_date = self.data["Date"].max().isoformat()
-        else:
-            self.data: pd.DataFrame = None
-            self.start_date = None
-            self.end_date = None
 
         if sentiment_analyzer:
             self.sentiment_analyzer = SentimentAnalyzer(
@@ -49,16 +48,6 @@ class DataComposer:
             )
         else:
             self.sentiment_analyzer = None
-
-    @property
-    def data(self) -> pd.DataFrame:
-        """Function to get the data attribute."""
-        return self.data
-
-    @property
-    def sentiment_analyzer(self) -> SentimentAnalyzer:
-        """Function to get the sentiment_analyzer attribute."""
-        return self.sentiment_analyzer
 
     def add_update_sentiment_analyzer(self, method: str, preprocess: bool) -> None:
         """
@@ -90,7 +79,7 @@ class DataComposer:
         hist = tick.history(start=start_date, end=end_date)
         hist.reset_index(inplace=True)
         hist["Date"] = hist["Date"].dt.date
-        self.df = hist[["Date", "Open", "Close", "High", "Low"]]
+        self.data = hist[["Date", "Open", "Close", "High", "Low"]]
         self.start_date = start_date
         self.end_date = end_date
 
@@ -128,17 +117,17 @@ class DataComposer:
         indicator : str
             The indicator to add to the stock data.
         """
-        if indicator == "News":
+        if indicator == "news":
             if self.sentiment_analyzer is None:
                 raise ValueError(
                     "No sentiment analyzer provided. Please provide a sentiment analyzer to use for processing the news."
                 )
             self.data = add_news_index(self.ticker, self.data, self.sentiment_analyzer)
-        elif indicator == "Insider":
+        elif indicator == "insider":
             self.data = add_insider_index(
                 self.ticker, self.start_date, self.end_date, self.data
             )
-        elif indicator == "Analyst":
+        elif indicator == "analyst":
             self.data = add_analyst_index(
                 self.ticker, self.start_date, self.end_date, self.data
             )
@@ -255,3 +244,14 @@ class DataComposer:
         This function uses the awesome Pygwalker library to render the stock data as an HTML dashboard with which you can do a lot of cool stuff like filtering, sorting, plotting, etc.
         """
         return pygwalker.walk(self.data)
+
+    def get_data(self) -> pd.DataFrame:
+        """
+        Function to get the stock data.
+
+        Returns
+        -------
+        pd.DataFrame
+            The stock data.
+        """
+        return self.data

@@ -1,6 +1,6 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from finsent.indicators.news import SearchResult
 from typing import List
+from finsent.indicators.sentiment.models import SearchResult
 
 
 class Vader:

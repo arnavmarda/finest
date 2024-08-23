@@ -1,9 +1,8 @@
 import pandas as pd
 from finsent.indicators.sentiment import SentimentAnalyzer
-
-import analyst
-import insiders
-import news
+import finsent.indicators.analyst as analyst
+import finsent.indicators.insiders as insiders
+import finsent.indicators.news as news
 
 
 def add_analyst_index(

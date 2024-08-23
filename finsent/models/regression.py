@@ -1,16 +1,17 @@
 import pycaret.regression as pyr
-from pycaret.utils.constants import DATAFRAME_LIKE, SEQUENCE_LIKE
 import pandas as pd
 from typing import List, Optional, Union, Any, Literal, Dict
+
 from joblib.memory import Memory
 import logging
 from pycaret.loggers.base_logger import BaseLogger
+from pycaret.utils.constants import DATAFRAME_LIKE, SEQUENCE_LIKE
 
 
 class Regression(pyr.RegressionExperiment):
     """
     This class is a wrapper around the PyCaret RegressionExperiment class.
-    It essentially makes it easier to do Regression using a variety of models and easier set up of the environment.
+    It provides a simplified interface for training regression models using PyCaret by doing all the necessary data preprocessing.
 
     Refer to the PyCaret documentation for more information: https://pycaret.readthedocs.io/en/latest/api/regression.html#
     """
@@ -43,10 +44,15 @@ class Regression(pyr.RegressionExperiment):
             raise ValueError(f"Target column {y} not found in the DataFrame.")
 
         # Check and validate dependent variables
-
         if X == "*":
-            self.X = list(self.full_data.columns) - [self.y, "Date"]
-            self.data = self.full_data.drop(columns=["Date"])
+            self.X = list(self.full_data.columns) - [
+                self.y,
+                "Date",
+                "Open",
+                "High",
+                "Low",
+            ]
+            self.data = self.full_data[self.X + [self.y]]
             self.dates = self.full_data.Date
         else:
             self.X = []
@@ -64,6 +70,8 @@ class Regression(pyr.RegressionExperiment):
             columns = self.X + [self.y]
             self.data = self.full_data[columns]
             self.dates = self.full_data.Date
+
+        self.__shift_data()
 
     def __validate_column(self, column: str) -> bool:
         """
@@ -83,6 +91,14 @@ class Regression(pyr.RegressionExperiment):
             return True
         else:
             return False
+
+    def __shift_data(self) -> None:
+        """
+        Function to shift the data by one day.
+        """
+        for column in self.X:
+            self.data[column] = self.data[column].shift(1)
+        self.data = self.data.dropna()
 
     def setup(
         self,

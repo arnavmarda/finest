@@ -1,13 +1,14 @@
 from finsent.indicators.sentiment.finbert import FinBert
 from finsent.indicators.sentiment.vader import Vader
 from typing import Literal, List
-from finsent.indicators.news import SearchResult
 
 import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from string import punctuation
+
+from finsent.indicators.sentiment.models import SearchResult
 
 
 class SentimentAnalyzer:

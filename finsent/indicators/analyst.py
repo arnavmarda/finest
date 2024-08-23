@@ -85,8 +85,7 @@ def __clean_data(data: pd.DataFrame, start_date: str, end_date: str) -> pd.DataF
 
     # Sort by the GradeDate
     data.sort_values(by="GradeDate", inplace=True)
-    data.rename(columns={"GradeDate": "Date", "Change": "analyst"}, inplace=True)
-    data["analyst"] = normalize(data["analyst"])
+    data.rename(columns={"GradeDate": "Date"}, inplace=True)
     return data
 
 
@@ -108,14 +107,13 @@ def __merge_into_data_df(df: pd.DataFrame, ud_df: pd.DataFrame) -> pd.DataFrame:
     """
 
     # Merge the dataframes on the Date
-    df = pd.merge(df, ud_df, how="left", left_on="Date", right_on="GradeDate")
-
-    # Drop the redundant columns
-    df.drop(columns=["GradeDate"], inplace=True)
+    df = pd.merge(df, ud_df, how="left", left_on="Date", right_on="Date")
 
     # Fill the NaN values with 0
     df.fillna(0, inplace=True)
-    df["AnalystIndex"] = df["Change"].cumsum()
+    df["analyst"] = df["Change"].cumsum()
+    df["analyst"] = normalize(df["analyst"])
+
     df.drop(columns=["Change"], inplace=True)
 
     return df

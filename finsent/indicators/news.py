@@ -2,14 +2,13 @@ import random
 from typing import Tuple, Any, Dict, Optional, List
 from requests import get, Response
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, HttpUrl
 from datetime import date
 import pandas as pd
 from rich.progress import Progress, TaskID
 from interruptingcow import timeout
 from finsent.indicators.sentiment import SentimentAnalyzer
 import warnings
-
+from finsent.indicators.sentiment.models import SearchResult
 
 ####################################################################################################
 ###################################### UTILITY FUNCTIONS ###########################################
@@ -36,18 +35,6 @@ def __get_random_agent():
         A random user agent string.
     """
     return random.choice(agent_list)
-
-
-class SearchResult(BaseModel):
-    title: str
-    url: HttpUrl
-    provider: str
-    text: str
-    sentiment: Optional[List[int]] = None
-    predicted_sentiment: Optional[int] = None
-
-    def __str__(self):
-        return f"Title: {self.title}\nProvider: {self.provider}\nURL: {self.url}\nText: {self.text}"
 
 
 def __format_date(
