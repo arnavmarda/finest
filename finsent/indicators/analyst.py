@@ -42,7 +42,7 @@ def __clean_data(data: pd.DataFrame, start_date: str, end_date: str) -> pd.DataF
     data.reset_index(inplace=True)
 
     # Filter the data based on the start and end date
-    data = data[data.GradeDate.between(start_date, end_date)]
+    data = data[data.GradeDate.between(start_date, end_date)].copy()
     data["GradeDate"] = data["GradeDate"].dt.date
 
     # Define the mapping for the upgrades and downgrades
