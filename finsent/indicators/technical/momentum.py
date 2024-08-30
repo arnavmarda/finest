@@ -1,6 +1,5 @@
 import pandas as pd
 import ta
-import ta.momentum
 
 # Credit to https://technical-analysis-library-in-python.readthedocs.io/en/latest/index.html
 # for the implementations.
@@ -14,6 +13,8 @@ import ta.momentum
 
 def add_rsi(df: pd.DataFrame, window: int = 14) -> None:
     """
+    Adds the Relative Strength Index (RSI) to the DataFrame.
+
     Relative Strength Index (RSI)
     ----
 
@@ -46,6 +47,8 @@ def add_rsi(df: pd.DataFrame, window: int = 14) -> None:
 
 def add_tsi(df: pd.DataFrame, window_slow: int = 25, window_fast: int = 13) -> None:
     """
+    Adds the True Strength Index (TSI) to the DataFrame.
+
     True Strength Index (TSI)
     ----
 
@@ -86,6 +89,8 @@ def add_uo(
     weight3: float = 1,
 ) -> None:
     """
+    Adds the Ultimate Oscillator (UO) to the DataFrame.
+
     Ultimate Oscillator (UO)
     ----
 
@@ -141,6 +146,8 @@ def add_stochastic_oscillator(
     smooth_window: int = 3,
 ) -> None:
     """
+    Adds the Stochastic Oscillator to the DataFrame.
+
     Stochastic Oscillator
     ----
 
@@ -184,6 +191,8 @@ def add_stochastic_oscillator(
 
 def add_williams_r(df: pd.DataFrame, lbp: int = 14) -> None:
     """
+    Adds the Williams %R to the DataFrame.
+
     Williams %R
     ----
 
@@ -213,6 +222,8 @@ def add_awesome_oscillator(
     df: pd.DataFrame, window1: int = 5, window2: int = 34
 ) -> None:
     """
+    Adds the Awesome Oscillator to the DataFrame.
+
     Awesome Oscillator
     ----
 
@@ -247,6 +258,8 @@ def add_kama(
     pow2: int = 30,
 ) -> None:
     """
+    Adds the Kaufman's Adaptive Moving Average (KAMA) to the DataFrame.
+
     Kaufman's Adaptive Moving Average (KAMA)
     ----
 
@@ -283,6 +296,8 @@ def add_kama(
 
 def add_roc(df: pd.DataFrame, window: int = 12) -> None:
     """
+    Adds the Rate of Change (ROC) to the DataFrame.
+
     Rate of Change (ROC)
     ----
 
@@ -310,6 +325,8 @@ def add_stoch_rsi(
     df: pd.DataFrame, window: int = 14, smooth1: int = 3, smooth2: int = 3
 ) -> None:
     """
+    Adds the Stochastic RSI to the DataFrame.
+
     Stochastic RSI
     ----
 
@@ -352,6 +369,8 @@ def add_ppo(
     window_signal: int = 9,
 ) -> None:
     """
+    Adds the Percentage Price Oscillator (PPO) to the DataFrame.
+
     Percentage Price Oscillator (PPO)
     ----
 
@@ -405,6 +424,8 @@ def add_pvo(
     window_signal: int = 9,
 ) -> None:
     """
+    Adds the Percentage Volume Oscillator (PVO) to the DataFrame.
+
     Percentage Volume Oscillator (PVO)
     ----
 
